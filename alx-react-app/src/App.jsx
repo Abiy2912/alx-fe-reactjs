@@ -18,7 +18,7 @@ const App = () => {
       <WelcomeMessage />
       <Header />
       <MainContent />
-      <UserProfile name="Alice" age="25" bio="Loves hiking and photography" />
+      <UserProfile name="Abiy" age="32" bio="Loves coding" />
       <Footer />
     </div>
   );
