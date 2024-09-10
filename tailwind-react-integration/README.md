@@ -1,0 +1,1 @@
+Integrate Tailwind CSS into a React application to apply utility-first styling principles to React components.
