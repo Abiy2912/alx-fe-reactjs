@@ -1,65 +1,46 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
+import { useParams } from 'react-router-dom';
+import axios from 'axios';
+import { Card, List, ListItem } from '@mui/material';
 
-const AddRecipeForm = () => {
-  const [title, setTitle] = useState('');
-  const [ingredients, setIngredients] = useState('');
-  const [steps, setSteps] = useState('');
-  const [errors, setErrors] = useState({});
+function RecipeDetail() {
+  const { id } = useParams();
+  const [recipe, setRecipe] = useState(null);
 
-  const handleSubmit = (e) => {
-    e.preventDefault();
-    const validationErrors = validateForm();
-    if (Object.keys(validationErrors).length === 0) {
-      // Submit form data
-      console.log({ title, ingredients, steps });
-    } else {
-      setErrors(validationErrors);
-    }
-  };
+  useEffect(() => {
+    axios.get(`/api/recipes/${id}.json`).then((response) => {
+      setRecipe(response.data);
+    });
+  }, [id]);
 
-  const validateForm = () => {
-    const errors = {};
-    if (!title) errors.title = 'Title is required';
-    if (!ingredients) errors.ingredients = 'Ingredients are required';
-    if (!steps) errors.steps = 'Preparation steps are required';
-    return errors;
-  };
+  if (!recipe) {
+    return <div>Loading...</div>;
+  }
 
   return (
-    <form onSubmit={handleSubmit} className="max-w-lg mx-auto p-4">
-      <div className="mb-4">
-        <label className="block text-gray-700">Recipe Title</label>
-        <input
-          type="text"
-          value={title}
-          onChange={(e) => setTitle(e.target.value)}
-          className="w-full px-3 py-2 border rounded"
-        />
-        {errors.title && <p className="text-red-500">{errors.title}</p>}
-      </div>
-      <div className="mb-4">
-        <label className="block text-gray-700">Ingredients</label>
-        <textarea
-          value={ingredients}
-          onChange={(e) => setIngredients(e.target.value)}
-          className="w-full px-3 py-2 border rounded"
-        />
-        {errors.ingredients && <p className="text-red-500">{errors.ingredients}</p>}
-      </div>
-      <div className="mb-4">
-        <label className="block text-gray-700">Preparation Steps</label>
-        <textarea
-          value={steps}
-          onChange={(e) => setSteps(e.target.value)}
-          className="w-full px-3 py-2 border rounded"
-        />
-        {errors.steps && <p className="text-red-500">{errors.steps}</p>}
-      </div>
-      <button type="submit" className="bg-blue-500 text-white px-4 py-2 rounded">
-        Submit
-      </button>
-    </form>
+    <Card>
+      <Card.Media component="img" src={recipe.image} alt={recipe.title} />
+      <Card.Body>
+        <Card.Title>{recipe.title}</Card.Title>
+        <List>
+          <h2>Ingredients:</h2>
+          {recipe.ingredients.map((ingredient, index) => (
+            <ListItem key={index} className="list-inside list-disc pl-8">
+              {ingredient}
+            </ListItem>
+          ))}
+        </List>
+        <h2>Cooking Instructions:</h2>
+        <ol>
+          {recipe.steps.map((step, index) => (
+            <li key={index} className="list-inside list-decimal pl-8">
+              {step}
+            </li>
+          ))}
+        </ol>
+      </Card.Body>
+    </Card>
   );
-};
+}
 
-export default AddRecipeForm;
+export default RecipeDetail;
