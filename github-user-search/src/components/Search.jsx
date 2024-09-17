@@ -1,54 +1,51 @@
 import React, { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
+import { BrowserRouter, Routes, Route } from 'react-router-dom';
+import UserProfile from './UserProfile';
 import axios from 'axios';
 
-function Search() {
-    const [username, setUsername] = useState('');
-    const [userData, setUserData] = useState(null);
-    const [loading, setLoading] = useState(false);
-    const [error, setError] = useState(null);
+const Search = () => {
+  const [searchQuery, setSearchQuery] = useState('');
+  const [isLoading, setIsLoading] = useState(false);
+  const [errorMessage, setErrorMessage] = useState('');
+  const [userData, setUserData] = useState(null);
 
-    const handleInputChange = (e) => {
-        setUsername(e.target.value);
-    };
+  const navigate = useNavigate();
 
-    const handleFormSubmit = async (e) => {
-        e.preventDefault();
-        setLoading(true);
-        setError(null);
-        try {
-            const response = await axios.get(`https://api.github.com/users/${username}`);
-            setUserData(response.data);
-        } catch (err) {
-            setError('Looks like we can\'t find the user');
-        } finally {
-            setLoading(false);
-        }
-    };
+  const handleSubmit = async (event) => {
+    event.preventDefault();
+    setIsLoading(true);
+    setErrorMessage('');
 
-    return (
-        <div>
-            <form onSubmit={handleFormSubmit}>
-                <input
-                    type="text"
-                    value={username}
-                    onChange={handleInputChange}
-                    placeholder="Enter GitHub username"
-                />
-                <button type="submit">Search</button>
-            </form>
-            {loading && <p>Loading...</p>}
-            {error && <p>{error}</p>}
-            {userData && (
-                <div>
-                    <img src={userData.avatar_url} alt={userData.login} />
-                    <p>{userData.name}</p>
-                    <a href={userData.html_url} target="_blank" rel="noopener noreferrer">
-                        View Profile
-                    </a>
-                </div>
-            )}
-        </div>
-    );
-}
+    try {
+      const response = await axios.get(`https://api.github.com/users/${searchQuery}`);
+      setUserData(response.data);
+      navigate(`/user/${searchQuery}`);
+    } catch (error) {
+      setErrorMessage('Looks like we can\'t find the user.');
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  return (
+    <div>
+      <h1>GitHub User Search</h1>
+      <input
+        type="text"
+        placeholder="Enter GitHub username"
+        value={searchQuery}
+        onChange={(e) => setSearchQuery(e.target.value)}
+      />
+      <button onClick={handleSubmit}>Search</button>
+      {isLoading ? <p>Loading...</p> : errorMessage && <p>{errorMessage}</p>}
+      <BrowserRouter>
+        <Routes>
+          <Route path="/user/:username" element={<UserProfile user={userData} />} />
+        </Routes>
+      </BrowserRouter>
+    </div>
+  );
+};
 
 export default Search;
