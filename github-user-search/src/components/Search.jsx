@@ -31,14 +31,25 @@ const Search = () => {
   return (
     <div>
       <h1>GitHub User Search</h1>
-      <input
-        type="text"
-        placeholder="Enter GitHub username"
-        value={searchQuery}
-        onChange={(e) => setSearchQuery(e.target.value)}
-      />
-      <button onClick={handleSubmit}>Search</button>
+      <form onSubmit={handleSubmit}>
+        <input
+          type="text"
+          placeholder="Enter GitHub username"
+          value={searchQuery}
+          onChange={(e) => setSearchQuery(e.target.value)}
+        />
+        <button type="submit">Search</button>
+      </form>
       {isLoading ? <p>Loading...</p> : errorMessage && <p>{errorMessage}</p>}
+      {userData && (
+        <div>
+          <img src={userData.avatar_url} alt={userData.login} />
+          <p>{userData.name}</p>
+          <a href={userData.html_url} target="_blank" rel="noopener noreferrer">
+            View Profile
+          </a>
+        </div>
+      )}
       <BrowserRouter>
         <Routes>
           <Route path="/user/:username" element={<UserProfile user={userData} />} />
